@@ -28,7 +28,7 @@ router.post('/bundle', (req, res) => {
             console.warn('Compilation warnings:', stats.compilation.warnings);
         }
 
-        const bundlePath = '../../dist/bundle.js';
+        const bundlePath = './dist/bundle.js';
         if (fs.existsSync(bundlePath)) {
             const bundle = fs.readFileSync(bundlePath, 'utf-8');
             // 임시 파일 삭제
