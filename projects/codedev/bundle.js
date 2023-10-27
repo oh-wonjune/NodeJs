@@ -16,15 +16,16 @@ router.post('/bundle', (req, res) => {
     console.log(req.body.code)
     // Webpack을 사용하여 번들링
     webpack(config, (err, stats) => {
-         console.log(stats.toString({ colors: true, chunks: false }));
-        if (err) {
-            console.error(err);
+        if (err || stats.hasErrors()) {
+            const errorMessage = err ? err.toString() : stats.compilation.errors.toString();
+            console.error(errorMessage);
+
+            createErrorLog(errorMessage);
+
+            fs.unlinkSync(tempFilePath);
             return res.status(500).send('Error during bundling');
         }
 
-        if (stats.hasErrors()) {
-            console.error('Compilation errors:', stats.compilation.errors);
-        }
         if (stats.hasWarnings()) {
             console.warn('Compilation warnings:', stats.compilation.warnings);
         }
@@ -37,12 +38,35 @@ router.post('/bundle', (req, res) => {
             fs.unlinkSync(tempFilePath);
             res.send(bundle);
         } else {
-            console.log("error bundle")
+            createErrorLog("Bundling failed");
             // 임시 파일 삭제
             fs.unlinkSync(tempFilePath);
             res.status(500).send('Bundling failed');
         }
     });
 });
+
+// 로그 파일 생성 함수
+const createErrorLog = (errorMessage) => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const hours = String(today.getHours()).padStart(2, '0');
+    const minutes = String(today.getMinutes()).padStart(2, '0');
+    const seconds = String(today.getSeconds()).padStart(2, '0');
+
+    const folderName = `${year}-${month}-${day}`;
+    const logFileName = `${hours}${minutes}${seconds}.log`;
+
+    if (!fs.existsSync(folderName)) {
+        fs.mkdirSync(folderName);
+    }
+
+    const logFilePath = path.join(folderName, logFileName);
+
+    fs.writeFileSync(logFilePath, errorMessage);
+};
+
 
 module.exports = router;
