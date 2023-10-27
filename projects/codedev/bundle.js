@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const fs = require('fs');
 const config = require('./webpack.config');
 const router = express.Router();
+const path = require('path');
 
 router.post('/bundle', (req, res) => {
   const tempFilePath = './temp-code.js';
@@ -28,7 +29,8 @@ router.post('/bundle', (req, res) => {
             console.warn('Compilation warnings:', stats.compilation.warnings);
         }
 
-        const bundlePath = './dist/bundle.js';
+        //const bundlePath = './dist/bundle.js';
+        const bundlePath = path.resolve(__dirname, './dist/bundle.js');
         if (fs.existsSync(bundlePath)) {
             const bundle = fs.readFileSync(bundlePath, 'utf-8');
             // 임시 파일 삭제
