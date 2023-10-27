@@ -56,14 +56,23 @@ const createErrorLog = (errorMessage) => {
     const minutes = String(today.getMinutes()).padStart(2, '0');
     const seconds = String(today.getSeconds()).padStart(2, '0');
 
+    const logRoot = "log";
     const folderName = `${year}-${month}-${day}`;
     const logFileName = `${hours}${minutes}${seconds}.log`;
 
-    if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName);
+    // 'log' 폴더가 없다면 생성
+    if (!fs.existsSync(logRoot)) {
+        fs.mkdirSync(logRoot);
     }
 
-    const logFilePath = path.join(folderName, logFileName);
+    const dateFolderPath = path.join(logRoot, folderName);
+
+    // 날짜별 폴더가 없다면 생성
+    if (!fs.existsSync(dateFolderPath)) {
+        fs.mkdirSync(dateFolderPath);
+    }
+
+    const logFilePath = path.join(dateFolderPath, logFileName);
 
     fs.writeFileSync(logFilePath, errorMessage);
 };
